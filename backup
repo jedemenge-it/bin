@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby -w
+
+server_string = ARGV[0]
+
+if server_string.nil?
+	puts '[ERROR] Keinen Server uebergeben! Bitte zu sichernden Ornder im Format server:Ordner eingeben.'
+	exit
+end
+
+date = Time.now.strftime '%Y%m%d'
+
+link_name = 'latest'
+default_tar_name = 'data.tar.gz'
+neu_tar_name = "#{date}.tar.gz"
+
+if File.exists? link_name
+	puts 'Letzte Sicherung wird entschluesselt und ausgepackt...'
+	`gpg --decrypt #{link_name} > #{default_tar_name}`
+	if File.exists? default_tar_name
+		`tar xf #{default_tar_name}`
+		`rm #{default_tar_name}`
+
+		config_server_name = File.read('data/.script_config').strip!
+		if config_server_name != server_string
+			puts "[ERROR] Der angegebene Server passt nicht zu dem Server, der in der letzten Sicherung verwendet wurde ('#{config_server_name}')!"
+			`rm -rf data`
+			exit
+		end
+	else
+		puts '[ERROR] Konnte Datei nicht entschluesseln!'
+		exit
+	end
+end
+
+puts 'Synce Daten...'
+`rsync -av #{server_string} data > rsync.log`
+`echo "#{server_string}" > data/.script_config`
+
+puts 'Erzeuge tar Archiv...'
+`tar czf #{neu_tar_name} data`
+
+puts 'Verschluessle das Archiv...'
+`gpg -u andreas@jedemenge-it.de -r andreas@jedemenge-it.de -s --encrypt-files #{neu_tar_name}`
+
+puts 'Raeume auf...'
+`rm #{neu_tar_name}`
+`rm -rf data`
+`ln -sf #{neu_tar_name}.gpg latest`
+
+puts "\ndone!"
