@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+today = Time.now.strftime "%Y.%m.%d"
+dir = "/root/log/193.175.117.253/#{today}"
+
+msg_err = "[WARNUNG] Von Heute sind keine Logs vorhanden!"
+msg_suc = "[OK] Es sind Logs vorhanden"
+
+puts "Teste ob Syslog Logs von Heute empfangen hat..."
+puts `ssh -i ~/.ssh/menge root@syslog "[ ! -d '#{dir}' ] && echo '#{msg_err}' || echo '#{msg_suc}' "`
