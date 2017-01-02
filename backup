@@ -13,7 +13,7 @@ link_name = 'latest'
 default_tar_name = 'data.tar.gz'
 neu_tar_name = "#{date}.tar.gz"
 
-if File.exists? link_name
+if File.exist? link_name
 	puts 'Letzte Sicherung wird entschluesselt und ausgepackt...'
 	`gpg --decrypt #{link_name} > #{default_tar_name}`
 	if File.exists? default_tar_name
