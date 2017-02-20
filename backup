@@ -16,7 +16,7 @@ neu_tar_name = "#{date}.tar.gz"
 if File.exist? link_name
 	puts 'Letzte Sicherung wird entschluesselt und ausgepackt...'
 	`gpg --decrypt #{link_name} > #{default_tar_name}`
-	if File.exists? default_tar_name
+	if File.exist? default_tar_name
 		`tar xf #{default_tar_name}`
 		`rm #{default_tar_name}`
 
